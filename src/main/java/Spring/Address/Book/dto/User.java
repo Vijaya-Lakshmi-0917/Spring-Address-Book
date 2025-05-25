@@ -1,12 +1,11 @@
-package Spring.Address.Book.utility;
+package Spring.Address.Book.dto;
 
 import lombok.*;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AddressBook {
-    private Long id;
+public class User {
     private String name;
     private String email;
 }
