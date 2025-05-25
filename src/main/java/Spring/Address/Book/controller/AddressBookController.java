@@ -5,6 +5,7 @@ import Spring.Address.Book.service.AddressBookService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,35 +21,32 @@ public class AddressBookController {
 
     @GetMapping
     public List<User> getAllUsers() {
+        log.info("Fetching all users");
         return service.getAll();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
-        return service.getById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        log.info("Fetching user with ID: {}", id);
+        return new ResponseEntity<>(service.getById(id), HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
-        User createdUser = service.add(user);
-        return ResponseEntity.ok(createdUser);
+    public ResponseEntity<User> addUser(@Valid @RequestBody User user) {
+        log.info("Adding new user: {}", user);
+        return new ResponseEntity<>(service.add(user), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@PathVariable Long id, @Valid @RequestBody User user) {
-        return service.update(id, user)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        log.info("Updating user with ID: {}", id);
+        return new ResponseEntity<>(service.update(id, user), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        if (service.delete(id)) {
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
+        log.info("Deleting user with ID: {}", id);
+        service.delete(id);
+        return new ResponseEntity<>("User deleted successfully", HttpStatus.OK);
     }
 }
