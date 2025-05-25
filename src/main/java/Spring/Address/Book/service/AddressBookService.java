@@ -1,44 +1,53 @@
 package Spring.Address.Book.service;
 
 import Spring.Address.Book.dto.User;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
+@Slf4j
 @Service
 public class AddressBookService {
 
-    private final List<User> userList = new ArrayList<>();
+    private final Map<Long, User> userMap = new HashMap<>();
     private long nextId = 1;
 
-    public List<User> getAllUsers() {
-        return userList;
+    public List<User> getAll() {
+        log.info("Fetching all users");
+        return new ArrayList<>(userMap.values());
     }
 
-    public Optional<User> getUserById(Long id) {
-        return userList.stream().filter(user -> user.getId().equals(id)).findFirst();
+    public Optional<User> getById(Long id) {
+        log.info("Fetching user with ID: {}", id);
+        return Optional.ofNullable(userMap.get(id));
     }
 
-    public User addUser(User user) {
+    public User add(User user) {
         user.setId(nextId++);
-        userList.add(user);
+        userMap.put(user.getId(), user);
+        log.info("Added user: {}", user);
         return user;
     }
 
-    public Optional<User> updateUser(Long id, User updatedUser) {
-        Optional<User> existingUser = getUserById(id);
-        if (existingUser.isPresent()) {
+    public Optional<User> update(Long id, User updatedUser) {
+        if (userMap.containsKey(id)) {
             updatedUser.setId(id);
-            int index = userList.indexOf(existingUser.get());
-            userList.set(index, updatedUser);
+            userMap.put(id, updatedUser);
+            log.info("Updated user with ID {}: {}", id, updatedUser);
             return Optional.of(updatedUser);
         }
+        log.warn("User with ID {} not found for update", id);
         return Optional.empty();
     }
 
-    public boolean deleteUser(Long id) {
-        return userList.removeIf(user -> user.getId().equals(id));
+    public boolean delete(Long id) {
+        boolean removed = userMap.remove(id) != null;
+        if (removed) {
+            log.info("Deleted user with ID {}", id);
+        } else {
+            log.warn("User with ID {} not found for deletion", id);
+        }
+        return removed;
     }
 }
