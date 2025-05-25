@@ -3,38 +3,42 @@ package Spring.Address.Book.service;
 import Spring.Address.Book.dto.User;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AddressBookService {
 
-    private final Map<Long, User> userMap = new HashMap<>();
+    private final List<User> userList = new ArrayList<>();
     private long nextId = 1;
 
-    public List<User> getAll() {
-        return new ArrayList<>(userMap.values());
+    public List<User> getAllUsers() {
+        return userList;
     }
 
-    public Optional<User> getById(Long id) {
-        return Optional.ofNullable(userMap.get(id));
+    public Optional<User> getUserById(Long id) {
+        return userList.stream().filter(user -> user.getId().equals(id)).findFirst();
     }
 
-    public User add(User user) {
+    public User addUser(User user) {
         user.setId(nextId++);
-        userMap.put(user.getId(), user);
+        userList.add(user);
         return user;
     }
 
-    public Optional<User> update(Long id, User updatedUser) {
-        if (userMap.containsKey(id)) {
+    public Optional<User> updateUser(Long id, User updatedUser) {
+        Optional<User> existingUser = getUserById(id);
+        if (existingUser.isPresent()) {
             updatedUser.setId(id);
-            userMap.put(id, updatedUser);
+            int index = userList.indexOf(existingUser.get());
+            userList.set(index, updatedUser);
             return Optional.of(updatedUser);
         }
         return Optional.empty();
     }
 
-    public boolean delete(Long id) {
-        return userMap.remove(id) != null;
+    public boolean deleteUser(Long id) {
+        return userList.removeIf(user -> user.getId().equals(id));
     }
 }

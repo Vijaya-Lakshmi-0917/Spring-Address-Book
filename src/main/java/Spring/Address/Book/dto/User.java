@@ -6,8 +6,7 @@ public class User {
     private String address;
     private String phone;
 
-    public User() {
-    }
+    public User() {}
 
     public User(Long id, String name, String address, String phone) {
         this.id = id;

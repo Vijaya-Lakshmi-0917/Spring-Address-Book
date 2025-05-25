@@ -2,7 +2,8 @@ package Spring.Address.Book.controller;
 
 import Spring.Address.Book.dto.User;
 import Spring.Address.Book.service.AddressBookService;
-import org.springframework.http.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,44 +12,34 @@ import java.util.List;
 @RequestMapping("/addressbook")
 public class AddressBookController {
 
-    private final AddressBookService service;
-
-    public AddressBookController(AddressBookService service) {
-        this.service = service;
-    }
+    @Autowired
+    private AddressBookService service;
 
     @GetMapping
-    public ResponseEntity<List<User>> getAll() {
-        List<User> users = service.getAll();
-        return ResponseEntity.ok(users);
+    public List<User> getAllUsers() {
+        return service.getAllUsers();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getById(@PathVariable Long id) {
-        return service.getById(id)
+    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+        return service.getUserById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<User> create(@RequestBody User user) {
-        User created = service.add(user);
-        return new ResponseEntity<>(created, HttpStatus.CREATED);
+    public User createUser(@RequestBody User user) {
+        return service.addUser(user);
     }
     @PutMapping("/{id}")
-    public ResponseEntity<User> update(@PathVariable Long id, @RequestBody User user) {
-        return service.update(id, user)
+    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
+        return service.updateUser(id, user)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        boolean deleted = service.delete(id);
-        if (deleted) {
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        return service.deleteUser(id) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 }
